@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div id="app">
+      <label for="month">请选择月份：</label>
+      <select id="month-select" name="month" placeholder="请选择月份">
+        <option value="" style="display: none"></option>
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+        <option value="6">6</option>
+        <option value="7">7</option>
+        <option value="8">8</option>
+        <option value="9">9</option>
+        <option value="10">10</option>
+        <option value="11">11</option>
+        <option value="12">12</option>
+      </select>
+      <div class="bill">
+        <div>
+          <span>type</span>
+          <span>time</span>
+          <span>category</span>
+          <span>amount</span>
+        </div>
+        <ul></ul>
+      </div>
+      <div>
+        <span class="income"></span>
+        <span class="outcome"></span>
+      </div>
+    </div>
+  </body>
+  <script>
+    const $ul = document.getElementsByTagName("ul")[0];
+    const $select = document.getElementById("month-select");
+    const $income = document.getElementsByClassName("income")[0];
+    const $outcome = document.getElementsByClassName("outcome")[0];
+
+    $select.addEventListener("change", function (e) {
+      while ($ul.lastChild) {
+        $ul.removeChild($ul.lastChild);
+      }
+      renderListByRequestBillData(this.value);
+    });
+    renderListByRequestBillData();
+
+    function renderListByRequestBillData(month) {
+      const frag = document.createDocumentFragment();
+      const url = month ? `/bills?month=${month}` : "/bills";
+      fetch(url)
+        .then((res) => res.json())
+        .then((response) => {
+          let { data, total } = response;
+          data = data.map((item) => ({
+            ...item,
+            type: item.type == "1" ? "收入" : "支出",
+          }));
+          data.forEach((bill) => {
+            const li = document.createElement("li");
+            li.innerText = Object.values(bill).join("    ");
+            frag.appendChild(li);
+          });
+          $ul.appendChild(frag);
+          $income.innerText = `收入：${total.income}`;
+          $outcome.innerText = `支出：${total.outcome}`;
+        });
+    }
+  </script>
+</html>
